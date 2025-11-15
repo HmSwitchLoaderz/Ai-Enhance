@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Script Sender</title>
+</head>
+<body>
+    <h2>Send Script to Server</h2>
+
+    <textarea id="scriptInput" rows="10" cols="50" placeholder="Enter script here"></textarea>
+    <br><br>
+
+    <button onclick="sendScript()">Send to Server</button>
+
+    <h3>Response:</h3>
+    <pre id="responseBox"></pre>
+
+    <script>
+        async function sendScript() {
+            let script = document.getElementById("scriptInput").value;
+
+            let formData = new FormData();
+            formData.append("script", script);
+
+            let res = await fetch("http://10.0.0.29:5000/obf", {
+                method: "POST",
+                body: formData
+            });
+
+            let text = await res.text();
+            document.getElementById("responseBox").textContent = text;
+        }
+    </script>
+</body>
+</html>
