@@ -1,28 +1,50 @@
-import { IncomingForm } from 'formidable';
-import fs from 'fs';
-import sharp from 'sharp';
+import Replicate from "replicate";
+import { IncomingForm } from "formidable";
+import fs from "fs";
+import fetch from "node-fetch";
 
 export const config = {
   api: {
-    bodyParser: false, // important to handle file uploads
-  },
+    bodyParser: false
+  }
 };
+
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN
+});
 
 export default async function handler(req, res) {
   const form = new IncomingForm();
   form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).send(err);
+    if (err) return res.status(500).send("Error parsing form");
 
-    const file = files.image;
-    const buffer = fs.readFileSync(file.filepath);
+    const imageFile = files.image;
+    const buffer = fs.readFileSync(imageFile.filepath);
 
-    // simple "enhance": upscale x2 + sharpen
-    const enhancedBuffer = await sharp(buffer)
-      .resize({ width: 800 }) // upscale width
-      .sharpen()
-      .toBuffer();
+    try {
+      // Call Replicate model (Real-ESRGAN)
+      const output = await replicate.run(
+        "xinntao/realesrgan", // Real-ESRGAN model
+        {
+          input: {
+            image: buffer,
+            scale: 4,
+            face_enhance: true
+          }
+        }
+      );
 
-    res.setHeader('Content-Type', 'image/png');
-    res.send(enhancedBuffer);
+      // output is URL (or array)
+      const imageUrl = Array.isArray(output) ? output[0] : output;
+
+      const response = await fetch(imageUrl);
+      const imageBuffer = await response.arrayBuffer();
+
+      res.setHeader("Content-Type", "image/png");
+      res.send(Buffer.from(imageBuffer));
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("AI enhancement failed");
+    }
   });
 }
