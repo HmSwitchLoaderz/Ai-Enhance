@@ -1,34 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Script Sender</title>
+  <meta charset="UTF-8">
+  <title>AI Photo Enhancer</title>
 </head>
 <body>
-    <h2>Send Script to Server</h2>
+  <h1>AI Photo Enhancer</h1>
 
-    <textarea id="scriptInput" rows="10" cols="50" placeholder="Enter script here"></textarea>
-    <br><br>
+  <input type="file" id="imageInput" accept="image/*">
+  <button onclick="uploadImage()">Enhance</button>
 
-    <button onclick="sendScript()">Send to Server</button>
+  <h2>Original</h2>
+  <img id="original" style="max-width:300px; display:block;">
+  <h2>Enhanced</h2>
+  <img id="enhanced" style="max-width:300px; display:block;">
 
-    <h3>Response:</h3>
-    <pre id="responseBox"></pre>
+  <script>
+    async function uploadImage() {
+      const file = document.getElementById("imageInput").files[0];
+      if (!file) return alert("No image selected");
 
-    <script>
-        async function sendScript() {
-            let script = document.getElementById("scriptInput").value;
+      const reader = new FileReader();
+      reader.onload = () => document.getElementById("original").src = reader.result;
+      reader.readAsDataURL(file);
 
-            let formData = new FormData();
-            formData.append("script", script);
+      const formData = new FormData();
+      formData.append("image", file);
 
-            let res = await fetch("http://10.0.0.29:5000/obf", {
-                method: "POST",
-                body: formData
-            });
+      const res = await fetch("/api/enhance", {
+        method: "POST",
+        body: formData
+      });
 
-            let text = await res.text();
-            document.getElementById("responseBox").textContent = text;
-        }
-    </script>
+      if (!res.ok) {
+        alert("Enhancement failed");
+        return;
+      }
+
+      const blob = await res.blob();
+      document.getElementById("enhanced").src = URL.createObjectURL(blob);
+    }
+  </script>
 </body>
 </html>
