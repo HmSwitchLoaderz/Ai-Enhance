@@ -2,44 +2,169 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Photo Enhancer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 50px 20px;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #fff;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+
+    p {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 1.2rem;
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .upload-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    button {
+      background: #ff7e5f;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      background: #feb47b;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .images {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 40px;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .images img {
+      max-width: 300px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .images img:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 500px) {
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>AI Photo Enhancer</h1>
 
-  <input type="file" id="imageInput" accept="image/*">
-  <button onclick="uploadImage()">Enhance</button>
+  <h1>✨ Transform Your Photos with AI ✨</h1>
+  <p>Upload your image and watch the magic happen. Enhance, smooth, and breathe life into every detail.</p>
 
-  <h2>Original</h2>
-  <img id="original" style="max-width:300px; display:block;">
-  <h2>Enhanced</h2>
-  <img id="enhanced" style="max-width:300px; display:block;">
+  <div class="upload-section">
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="uploadImage()">Enhance My Photo</button>
+
+    <div class="images">
+      <img id="original" alt="Original Photo" style="display:none;">
+      <img id="enhanced" alt="Enhanced Photo" style="display:none;">
+    </div>
+  </div>
 
   <script>
     async function uploadImage() {
       const file = document.getElementById("imageInput").files[0];
-      if (!file) return alert("No image selected");
+      if (!file) return alert("Please select an image first!");
 
+      // Show original
       const reader = new FileReader();
-      reader.onload = () => document.getElementById("original").src = reader.result;
+      reader.onload = () => {
+        const originalImg = document.getElementById("original");
+        originalImg.src = reader.result;
+        originalImg.style.display = "block";
+      };
       reader.readAsDataURL(file);
 
       const formData = new FormData();
       formData.append("image", file);
 
-      const res = await fetch("/api/enhance", {
-        method: "POST",
-        body: formData
-      });
+      const enhancedImg = document.getElementById("enhanced");
 
-      if (!res.ok) {
-        alert("Enhancement failed");
-        return;
+      try {
+        const res = await fetch("/api/enhance", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!res.ok) throw new Error("Enhancement failed");
+
+        const blob = await res.blob();
+        enhancedImg.src = URL.createObjectURL(blob);
+        enhancedImg.style.display = "block";
+      } catch (e) {
+        alert("Enhancement failed: " + e.message);
       }
-
-      const blob = await res.blob();
-      document.getElementById("enhanced").src = URL.createObjectURL(blob);
     }
   </script>
+
 </body>
 </html>
