@@ -1,7 +1,8 @@
-import Replicate from "replicate";
-import { IncomingForm } from "formidable";
-import fs from "fs";
-import fetch from "node-fetch";
+const fs = require("fs");
+const Replicate = require("replicate");
+const { IncomingForm } = require("formidable");
+const fetch = require("node-fetch");
+
 
 export const config = { api: { bodyParser: false } };
 
