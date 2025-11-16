@@ -6,165 +6,112 @@
   <title>AI Photo Enhancer</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Montserrat', sans-serif;
-    }
-
+    * { box-sizing: border-box; margin:0; padding:0; font-family:'Montserrat',sans-serif; }
     body {
       background: linear-gradient(135deg, #f6d365, #fda085);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 50px 20px;
-      color: #333;
+      min-height: 100vh; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+      padding:50px 20px; color:#333;
     }
-
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      text-align: center;
-      color: #fff;
-      text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    }
-
-    p {
-      text-align: center;
-      margin-bottom: 40px;
-      font-size: 1.2rem;
-      color: #fff;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-    }
+    h1 { font-size:3rem; margin-bottom:10px; text-align:center; color:#fff; text-shadow:2px2px5px rgba(0,0,0,0.3);}
+    p { text-align:center; margin-bottom:40px; font-size:1.2rem; color:#fff; text-shadow:1px1px3px rgba(0,0,0,0.3); }
 
     .upload-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      max-width: 400px;
-      width: 100%;
+      display:flex; flex-direction:column; align-items:center;
+      background:rgba(255,255,255,0.9); padding:30px; border-radius:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.2); max-width:400px; width:100%;
     }
-
     input[type="file"] {
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      margin-bottom: 20px;
-      width: 100%;
-      cursor: pointer;
+      padding:10px; border-radius:10px; border:1px solid #ccc; margin-bottom:20px; width:100%; cursor:pointer;
     }
-
     button {
-      background: #ff7e5f;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      background:#ff7e5f; color:white; border:none; padding:15px 30px;
+      font-size:1rem; font-weight:bold; border-radius:50px; cursor:pointer;
+      transition: all 0.3s ease; box-shadow:0 5px 15px rgba(0,0,0,0.2); position:relative;
+    }
+    button:hover { background:#feb47b; transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.3); }
+
+    .glow { animation: glowAnim 1.2s infinite; }
+    @keyframes glowAnim {
+      0%,100% { box-shadow:0 0 10px #ff7e5f; }
+      50% { box-shadow:0 0 20px #feb47b; }
     }
 
-    button:hover {
-      background: #feb47b;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    .images { display:flex; flex-direction:column; align-items:center; margin-top:40px; gap:20px; width:100%; }
+    .images img { max-width:300px; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.2); transition: transform 0.3s ease; }
+    .images img:hover { transform: scale(1.05); }
+
+    .loader {
+      border: 6px solid #f3f3f3; 
+      border-top: 6px solid #ff7e5f; 
+      border-radius: 50%; width: 50px; height: 50px; 
+      animation: spin 1s linear infinite; margin-top: 20px; display:none;
     }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    .images {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 40px;
-      gap: 20px;
-      width: 100%;
-    }
-
-    .images img {
-      max-width: 300px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease;
-    }
-
-    .images img:hover {
-      transform: scale(1.05);
-    }
-
-    @media (max-width: 500px) {
-      h1 {
-        font-size: 2.2rem;
-      }
-
-      p {
-        font-size: 1rem;
-      }
-
-      button {
-        width: 100%;
-      }
+    @media(max-width:500px){
+      h1 { font-size:2.2rem; }
+      p { font-size:1rem; }
+      button { width:100%; }
     }
   </style>
 </head>
 <body>
 
-  <h1>✨ Transform Your Photos with AI ✨</h1>
-  <p>Upload your image and watch the magic happen. Enhance, smooth, and breathe life into every detail.</p>
+<h1>✨ Transform Your Photos with AI ✨</h1>
+<p>Upload your image and watch the magic happen. Enhance, smooth, and breathe life into every detail.</p>
 
-  <div class="upload-section">
-    <input type="file" id="imageInput" accept="image/*">
-    <button onclick="uploadImage()">Enhance My Photo</button>
+<div class="upload-section">
+  <input type="file" id="imageInput" accept="image/*">
+  <button id="enhanceBtn" onclick="uploadImage()">Enhance My Photo</button>
+  <div class="loader" id="loader"></div>
 
-    <div class="images">
-      <img id="original" alt="Original Photo" style="display:none;">
-      <img id="enhanced" alt="Enhanced Photo" style="display:none;">
-    </div>
+  <div class="images">
+    <img id="original" alt="Original Photo" style="display:none;">
+    <img id="enhanced" alt="Enhanced Photo" style="display:none;">
   </div>
+</div>
 
-  <script>
-    async function uploadImage() {
-      const file = document.getElementById("imageInput").files[0];
-      if (!file) return alert("Please select an image first!");
+<script>
+async function uploadImage() {
+  const file = document.getElementById("imageInput").files[0];
+  if (!file) return alert("Please select an image first!");
 
-      // Show original
-      const reader = new FileReader();
-      reader.onload = () => {
-        const originalImg = document.getElementById("original");
-        originalImg.src = reader.result;
-        originalImg.style.display = "block";
-      };
-      reader.readAsDataURL(file);
+  const originalImg = document.getElementById("original");
+  const enhancedImg = document.getElementById("enhanced");
+  const loader = document.getElementById("loader");
+  const btn = document.getElementById("enhanceBtn");
 
-      const formData = new FormData();
-      formData.append("image", file);
+  // Reset images
+  originalImg.style.display = "none";
+  enhancedImg.style.display = "none";
 
-      const enhancedImg = document.getElementById("enhanced");
+  // Show loader and glow button
+  loader.style.display = "block";
+  btn.classList.add("glow");
 
-      try {
-        const res = await fetch("/api/enhance", {
-          method: "POST",
-          body: formData
-        });
+  // Show original
+  const reader = new FileReader();
+  reader.onload = () => { originalImg.src = reader.result; originalImg.style.display = "block"; };
+  reader.readAsDataURL(file);
 
-        if (!res.ok) throw new Error("Enhancement failed");
+  const formData = new FormData();
+  formData.append("image", file);
 
-        const blob = await res.blob();
-        enhancedImg.src = URL.createObjectURL(blob);
-        enhancedImg.style.display = "block";
-      } catch (e) {
-        alert("Enhancement failed: " + e.message);
-      }
-    }
-  </script>
+  try {
+    const res = await fetch("/api/enhance", { method:"POST", body:formData });
+    if (!res.ok) throw new Error("Enhancement failed");
+
+    const blob = await res.blob();
+    enhancedImg.src = URL.createObjectURL(blob);
+    enhancedImg.style.display = "block";
+  } catch (e) {
+    alert("Enhancement failed: " + e.message);
+  } finally {
+    loader.style.display = "none";
+    btn.classList.remove("glow");
+  }
+}
+</script>
 
 </body>
 </html>
